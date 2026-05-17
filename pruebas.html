@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Search Bar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #0a0a0b;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+
+        .search-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 314px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            --spin-duration: 4s;
+        }
+
+        .search-field {
+            width: 301px;
+            height: 56px;
+            background: linear-gradient(135deg, #010201 0%, #0a0509 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0 60px 0 20px;
+            font-size: 18px;
+            color: #ffffff;
+            position: relative;
+            z-index: 5;
+            transition: all 0.3s ease;
+        }
+
+        .search-field::placeholder {
+            color: #b8b0b8;
+        }
+
+        .search-field:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(207, 48, 170, 0.2);
+        }
+
+        .effect-layer {
+            position: absolute;
+            border-radius: 12px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .outer-glow {
+            width: 354px;
+            height: 130px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            filter: blur(32px);
+            opacity: 0.6;
+            overflow: hidden;
+        }
+
+        .outer-glow::after {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: conic-gradient(
+                from 60deg at 50% 50%,
+                transparent 0deg,
+                #4d3fd0 15deg,
+                transparent 145deg,
+                transparent 180deg,
+                #e830ba 215deg,
+                transparent 325deg
+            );
+            animation: spin-effect var(--spin-duration, 4s) linear infinite;
+        }
+
+        .dark-layer {
+            width: 312px;
+            height: 65px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            filter: blur(2.5px);
+            overflow: hidden;
+        }
+
+        .dark-layer::after {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: conic-gradient(
+                from 82deg at 50% 50%,
+                transparent 0deg,
+                #2018a0 25deg,
+                transparent 75deg,
+                transparent 180deg,
+                #8d2580 205deg,
+                transparent 255deg
+            );
+            animation: spin-effect var(--spin-duration, 4s) linear infinite;
+        }
+
+        .bright-layer {
+            width: 307px;
+            height: 63px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            filter: blur(1.8px);
+            overflow: hidden;
+        }
+
+        .bright-layer::after {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: conic-gradient(
+                from 83deg at 50% 50%,
+                transparent 0deg,
+                #b5a5e8 20deg,
+                transparent 60deg,
+                transparent 180deg,
+                #f0b0e5 200deg,
+                transparent 240deg
+            );
+            filter: brightness(1.6);
+            animation: spin-effect var(--spin-duration, 4s) linear infinite;
+        }
+
+        .primary-border {
+            width: 303px;
+            height: 59px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            filter: blur(0.4px);
+            overflow: hidden;
+        }
+
+        .primary-border::after {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: conic-gradient(
+                from 70deg at 50% 50%,
+                transparent 0deg,
+                #5040d5 20deg,
+                transparent 80deg,
+                transparent 180deg,
+                #e540c0 210deg,
+                transparent 270deg
+            );
+            filter: brightness(1.5);
+            animation: spin-effect var(--spin-duration, 4s) 0.15s linear infinite;
+        }
+
+        .pink-hint {
+            position: absolute;
+            width: 30px;
+            height: 20px;
+            background: radial-gradient(circle, #cf30aa 0%, transparent 70%);
+            top: 18px;
+            left: 20px;
+            filter: blur(18px);
+            opacity: 0.75;
+            z-index: 4;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .input-wrapper:hover .pink-hint {
+            opacity: 0;
+        }
+
+        .gradient-mask {
+            position: absolute;
+            width: 95px;
+            height: 18px;
+            background: linear-gradient(to right, transparent 0%, #010201 100%);
+            top: 20px;
+            left: 20px;
+            z-index: 4;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .search-field:focus ~ .gradient-mask {
+            opacity: 0;
+        }
+
+        .search-button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 40px;
+            background-color: transparent;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 6;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-button:hover {
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .search-button:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .search-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .button-border-effect {
+            position: absolute;
+            right: 7px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 42px;
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 5;
+        }
+
+        .button-border-effect::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: conic-gradient(
+                from 90deg at 50% 50%,
+                transparent 0deg,
+                #3c394d 85deg,
+                transparent 95deg,
+                transparent 180deg,
+                #3c394d 265deg,
+                transparent 275deg
+            );
+            filter: brightness(1.4);
+            animation: spin-effect var(--spin-duration, 4s) linear infinite;
+        }
+
+        @keyframes spin-effect {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .input-wrapper {
+                width: 90vw;
+            }
+            
+            .search-field {
+                width: calc(90vw - 13px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <div class="input-wrapper">
+
+            <div class="effect-layer outer-glow"></div>
+            <div class="effect-layer dark-layer"></div>
+            <div class="effect-layer bright-layer"></div>
+            <div class="effect-layer primary-border"></div>
+
+            <div class="button-border-effect"></div>
+
+            <input 
+                type="text" 
+                class="search-field" 
+                placeholder="Search..."
+                aria-label="Search input"
+            >
+
+            <div class="pink-hint"></div>
+            <div class="gradient-mask"></div>
+
+            <button class="search-button" aria-label="Search">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <circle class="search-circle" cx="11" cy="11" r="8" stroke="#ffffff" stroke-width="2" fill="none" />
+                    <line class="search-line" x1="16.65" y1="16.65" x2="22" y2="22" stroke="#ffffff" stroke-width="2" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const inputWrapper = document.querySelector('.input-wrapper');
+        const searchField = document.querySelector('.search-field');
+        const searchButton = document.querySelector('.search-button');
+        let currentDuration = 4000; 
+        let targetDuration = 4000;
+        let animationFrame = null;
+        let isTyping = false;
+        let isSearching = false;
+
+        function smoothTransition() {
+            const diff = targetDuration - currentDuration;
+            
+            if (Math.abs(diff) > 10) {
+                currentDuration += diff * 0.015;
+
+                inputWrapper.style.setProperty('--spin-duration', `${currentDuration}ms`);
+                
+                animationFrame = requestAnimationFrame(smoothTransition);
+            } else {
+                currentDuration = targetDuration;
+                inputWrapper.style.setProperty('--spin-duration', `${currentDuration}ms`);
+                animationFrame = null;
+            }
+        }
+
+        searchField.addEventListener('input', () => {
+            if (!isTyping && !isSearching) {
+                isTyping = true;
+                targetDuration = 60000; 
+                if (!animationFrame) {
+                    smoothTransition();
+                }
+            }
+        });
+
+        searchField.addEventListener('focus', () => {
+            if (!isTyping && !searchField.value) {
+                targetDuration = 4000;
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                    animationFrame = null;
+                }
+                currentDuration = 4000;
+                inputWrapper.style.setProperty('--spin-duration', `${currentDuration}ms`);
+            }
+        });
+
+        searchField.addEventListener('blur', () => {
+            if (!isSearching) {
+                isTyping = false;
+                targetDuration = 4000;
+
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                    animationFrame = null;
+                }
+
+                smoothTransition();
+            }
+        });
+
+        searchButton.addEventListener('click', () => {
+            isSearching = true;
+
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+
+            targetDuration = 2500; 
+            smoothTransition();
+
+            setTimeout(() => {
+                isSearching = false;
+                isTyping = false;
+                targetDuration = 4000;
+                
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                    animationFrame = null;
+                }
+                
+                smoothTransition();
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
